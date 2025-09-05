@@ -27,7 +27,7 @@ const eventSchema = Joi.object({
   tags: Joi.array().items(Joi.string().trim()).optional()
 });
 
-// Team member validation schema
+// // Team member validation schema
 const teamMemberSchema = Joi.object({
   name: Joi.string().required().min(1).max(100).trim(),
   position: Joi.string().required().min(1).max(100).trim(),
