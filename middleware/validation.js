@@ -72,9 +72,11 @@ const validateEvent = (req, res, next) => {
 };
 
 const validateTeamMember = (req, res, next) => {
+  console.log('🔍 Validating team member data:', req.body); // Debug log
   const { error } = teamMemberSchema.validate(req.body);
   
   if (error) {
+    console.log('❌ Team member validation error details:', error.details); // Debug log
     return res.status(400).json({
       success: false,
       error: 'Validation failed',

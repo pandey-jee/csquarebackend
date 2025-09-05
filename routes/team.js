@@ -31,6 +31,28 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/team/core/members - Get core team members
+router.get('/core/members', async (req, res) => {
+  try {
+    const coreMembers = await TeamMember.find({
+      isCore: true,
+      isActive: true
+    }).sort({ displayOrder: 1, createdAt: -1 });
+    
+    res.json({
+      success: true,
+      count: coreMembers.length,
+      data: coreMembers
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch core team members',
+      details: error.message
+    });
+  }
+});
+
 // GET /api/team/:id - Get single team member
 router.get('/:id', async (req, res) => {
   try {
@@ -59,6 +81,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/team - Add new team member (Admin only)
 router.post('/', authenticateAdmin, validateTeamMember, async (req, res) => {
   try {
+    console.log('📝 Creating team member with data:', req.body);
     const teamMember = new TeamMember(req.body);
     await teamMember.save();
     
@@ -68,6 +91,7 @@ router.post('/', authenticateAdmin, validateTeamMember, async (req, res) => {
       message: 'Team member added successfully'
     });
   } catch (error) {
+    console.error('❌ Error creating team member:', error);
     res.status(400).json({
       success: false,
       error: 'Failed to add team member',
@@ -126,28 +150,6 @@ router.delete('/:id', authenticateAdmin, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to remove team member',
-      details: error.message
-    });
-  }
-});
-
-// GET /api/team/core/members - Get core team members
-router.get('/core/members', async (req, res) => {
-  try {
-    const coreMembers = await TeamMember.find({
-      isCore: true,
-      isActive: true
-    }).sort({ displayOrder: 1, createdAt: -1 });
-    
-    res.json({
-      success: true,
-      count: coreMembers.length,
-      data: coreMembers
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch core team members',
       details: error.message
     });
   }
