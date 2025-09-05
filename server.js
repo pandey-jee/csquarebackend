@@ -27,12 +27,16 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration
-const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173'];
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : [
+      'http://localhost:5173',
+      'https://csquareclub-gray.vercel.app'  // ✅ add your frontend here
+    ];
 
 // Add the deployed backend URL to allowed origins for health checks
 allowedOrigins.push('https://csquarebackend-1.onrender.com');
 
-console.log('🔧 Allowed CORS origins:', allowedOrigins);
 
 const corsOptions = {
   origin: function (origin, callback) {
