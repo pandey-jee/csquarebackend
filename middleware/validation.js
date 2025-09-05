@@ -33,11 +33,23 @@ const teamMemberSchema = Joi.object({
   position: Joi.string().required().min(1).max(100).trim(),
   bio: Joi.string().required().min(1).max(500).trim(),
   initials: Joi.string().min(1).max(3).optional().trim().uppercase(),
-  photo: Joi.string().uri({ scheme: ['http', 'https', 'data'] }).optional().allow(''),
+  photo: Joi.alternatives().try(
+    Joi.string().uri(), // Accept any valid URI
+    Joi.string().allow('')
+  ).optional(),
   email: Joi.string().email().optional().allow(''),
-  linkedin: Joi.string().uri().optional().allow(''),
-  github: Joi.string().uri().optional().allow(''),
-  portfolio: Joi.string().uri().optional().allow(''),
+  linkedin: Joi.alternatives().try(
+    Joi.string().uri(), // Accept any valid URI
+    Joi.string().allow('')
+  ).optional(),
+  github: Joi.alternatives().try(
+    Joi.string().uri(), // Accept any valid URI
+    Joi.string().allow('')
+  ).optional(),
+  portfolio: Joi.alternatives().try(
+    Joi.string().uri(), // Accept any valid URI
+    Joi.string().allow('')
+  ).optional(),
   skills: Joi.array().items(Joi.string().trim()).optional(),
   joinDate: Joi.date().optional(),
   isActive: Joi.boolean().optional(),

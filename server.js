@@ -12,6 +12,7 @@ const teamRoutes = require('./routes/team');
 const contactRoutes = require('./routes/contact');
 const authRoutes = require('./routes/auth');
 const galleryRoutes = require('./routes/gallery');
+const imageProxyRoutes = require('./routes/imageProxy');
 
 const app = express();
 
@@ -26,49 +27,16 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',')
-  : [
-      'http://localhost:5173',
-      'https://csquareclub-gray.vercel.app'  // ✅ add your frontend here
-    ];
-
-// Add the deployed backend URL to allowed origins for health checks
-allowedOrigins.push('https://csquarebackend-1.onrender.com');
-
-console.log('🔧 Allowed CORS origins:', allowedOrigins);
-
+// CORS configuration - Allow all origins for image proxy functionality
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests, or server-to-server)
-    if (!origin) {
-      console.log('✅ CORS: Allowing request with no origin');
-      return callback(null, true);
-    }
-    
-    // Allow requests from allowed origins
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log(`✅ CORS: Allowing origin: ${origin}`);
-      callback(null, true);
-    } else {
-      // In production, log the blocked origin for debugging
-      console.log(`❌ CORS blocked origin: ${origin}`);
-      
-      // Temporary: Allow requests from render.com domains for debugging
-      if (origin.includes('render.com')) {
-        console.log('🔧 CORS: Temporarily allowing render.com domain');
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  },
+  origin: true, // Allow all origins
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 };
+
+console.log('🔧 CORS: Allowing all origins for image proxy functionality');
 app.use(cors(corsOptions));
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -108,6 +76,7 @@ app.use('/api/team', teamRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api', imageProxyRoutes); // Image proxy routes
 
 // Root endpoint
 app.get('/api', (req, res) => {
@@ -130,7 +99,13 @@ app.get('/', (req, res) => {
       team: '/api/team',
       contact: '/api/contact',
       auth: '/api/auth',
-      gallery: '/api/gallery'
+      gallery: '/api/gallery',
+      imageProxy: '/api/proxy-image?url=https://example.com/image.jpg',
+      imageProxyHealth: '/api/proxy-image/health'
+    },
+    features: {
+      imageProxy: 'Fetch images from any external URL (LinkedIn, Twitter, Instagram, Facebook, etc.)',
+      cors: 'All origins allowed for maximum compatibility'
     }
   });
 });

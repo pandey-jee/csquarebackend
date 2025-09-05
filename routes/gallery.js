@@ -8,7 +8,10 @@ const Joi = require('joi');
 const gallerySchema = Joi.object({
   title: Joi.string().required().min(1).max(200).trim(),
   description: Joi.string().max(500).optional().trim().allow(''),
-  imageUrl: Joi.string().uri({ scheme: ['http', 'https', 'data'] }).required(), // Allow various URL schemes
+  imageUrl: Joi.alternatives().try(
+    Joi.string().uri(), // Accept any valid URI
+    Joi.string().allow('')
+  ).required(),
   eventId: Joi.string().optional().allow(''),
   isActive: Joi.boolean().optional(),
   displayOrder: Joi.number().min(0).optional()
