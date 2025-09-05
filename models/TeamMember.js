@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidImageUrl, isValidUrl } = require('../utils/urlValidation');
 
 const teamMemberSchema = new mongoose.Schema({
   name: {
@@ -33,9 +34,9 @@ const teamMemberSchema = new mongoose.Schema({
     validate: {
       validator: function(v) {
         if (!v) return true;
-        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
+        return isValidImageUrl(v);
       },
-      message: 'Photo must be a valid image URL'
+      message: 'Photo must be a valid image URL (supports HTTP/HTTPS URLs, data URLs, and CDN links)'
     }
   },
   email: {
@@ -52,15 +53,36 @@ const teamMemberSchema = new mongoose.Schema({
   },
   linkedin: {
     type: String,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(v) {
+        if (!v) return true;
+        return isValidUrl(v);
+      },
+      message: 'LinkedIn must be a valid URL'
+    }
   },
   github: {
     type: String,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(v) {
+        if (!v) return true;
+        return isValidUrl(v);
+      },
+      message: 'GitHub must be a valid URL'
+    }
   },
   portfolio: {
     type: String,
-    trim: true
+    trim: true,
+    validate: {
+      validator: function(v) {
+        if (!v) return true;
+        return isValidUrl(v);
+      },
+      message: 'Portfolio must be a valid URL'
+    }
   },
   skills: [{
     type: String,

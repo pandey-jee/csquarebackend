@@ -17,7 +17,7 @@ const eventSchema = Joi.object({
   linkText: Joi.string().max(50).optional().trim().allow(''),
   featured: Joi.boolean().optional(),
   image: Joi.alternatives().try(
-    Joi.string().uri(),
+    Joi.string().uri({ scheme: ['http', 'https', 'data'] }), // Allow http, https, and data URLs
     Joi.string().allow('')
   ).optional(),
   attendees: Joi.number().min(0).optional(),
@@ -33,7 +33,7 @@ const teamMemberSchema = Joi.object({
   position: Joi.string().required().min(1).max(100).trim(),
   bio: Joi.string().required().min(1).max(500).trim(),
   initials: Joi.string().min(1).max(3).optional().trim().uppercase(),
-  photo: Joi.string().uri().optional().allow(''),
+  photo: Joi.string().uri({ scheme: ['http', 'https', 'data'] }).optional().allow(''),
   email: Joi.string().email().optional().allow(''),
   linkedin: Joi.string().uri().optional().allow(''),
   github: Joi.string().uri().optional().allow(''),

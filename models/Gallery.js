@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isValidImageUrl } = require('../utils/urlValidation');
 
 const gallerySchema = new mongoose.Schema({
   title: {
@@ -14,7 +15,14 @@ const gallerySchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    required: true
+    required: true,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return isValidImageUrl(v);
+      },
+      message: 'imageUrl must be a valid image URL (supports HTTP/HTTPS URLs, data URLs, and CDN links)'
+    }
   },
   eventId: {
     type: mongoose.Schema.Types.ObjectId,
