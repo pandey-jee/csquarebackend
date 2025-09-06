@@ -21,7 +21,14 @@ function ping() {
   const isHttps = url.startsWith('https');
   const client = isHttps ? https : http;
   
-  console.log(`🏓 Pinging: ${url} at ${new Date().toISOString()}`);
+  console.log('🚀 ============================================');
+  console.log('🏓 C-Square Club Backend Keep-Alive Ping');
+  console.log('🚀 ============================================');
+  console.log(`📍 Target URL: ${url}`);
+  console.log(`🌐 Protocol: ${isHttps ? 'HTTPS' : 'HTTP'}`);
+  console.log(`⏰ Timestamp: ${new Date().toISOString()}`);
+  console.log(`🎯 Purpose: Preventing Render cold start`);
+  console.log('─'.repeat(44));
   
   const startTime = Date.now();
   
@@ -34,31 +41,60 @@ function ping() {
     });
     
     res.on('end', () => {
+      console.log('📥 Response received from server');
       if (res.statusCode === 200) {
         try {
           const response = JSON.parse(data);
-          console.log(`✅ Success (${responseTime}ms) - Status: ${response.status}`);
+          console.log(`✅ SUCCESS: Ping completed successfully!`);
+          console.log(`⚡ Response Time: ${responseTime}ms`);
+          console.log(`📊 Server Status: ${response.status}`);
           if (response.uptime) {
-            console.log(`⏱️  Server Uptime: ${Math.floor(response.uptime)}s`);
+            console.log(`⏱️  Server Uptime: ${Math.floor(response.uptime)}s (${Math.floor(response.uptime/60)} minutes)`);
           }
+          if (response.environment) {
+            console.log(`🌍 Environment: ${response.environment}`);
+          }
+          console.log('🎉 Backend is warm and ready to serve requests!');
         } catch (e) {
-          console.log(`✅ Success (${responseTime}ms) - Response received`);
+          console.log(`✅ SUCCESS: Response received (${responseTime}ms)`);
+          console.log('📄 Raw response received (not JSON)');
         }
       } else {
-        console.log(`⚠️  Status: ${res.statusCode} (${responseTime}ms)`);
+        console.log(`⚠️  WARNING: Unexpected status code ${res.statusCode}`);
+        console.log(`⚡ Response Time: ${responseTime}ms`);
+        console.log('🔍 Server may be experiencing issues');
       }
+      console.log('─'.repeat(44));
+      console.log('✨ Keep-alive ping completed');
+      console.log('🚀 ============================================');
       process.exit(0);
     });
   });
   
   req.on('error', (error) => {
     const responseTime = Date.now() - startTime;
-    console.error(`❌ Error (${responseTime}ms): ${error.message}`);
+    console.log('❌ ERROR: Ping failed!');
+    console.log(`⚡ Time Elapsed: ${responseTime}ms`);
+    console.log(`🔥 Error Type: ${error.code || 'Unknown'}`);
+    console.log(`📝 Error Message: ${error.message}`);
+    console.log('🚨 Possible causes:');
+    console.log('   • Server is down or unreachable');
+    console.log('   • Network connectivity issues');
+    console.log('   • Render service is cold starting');
+    console.log('   • DNS resolution problems');
+    console.log('─'.repeat(44));
+    console.log('💡 Tip: Try running the ping again in a few moments');
+    console.log('🚀 ============================================');
     process.exit(1);
   });
   
   req.setTimeout(30000, () => {
-    console.error('❌ Request timeout (30s)');
+    console.log('⏰ TIMEOUT: Request timed out after 30 seconds');
+    console.log('🚨 Server may be experiencing high load or cold start');
+    console.log('💡 Tip: This is normal for Render free tier cold starts');
+    console.log('🔄 The server should warm up shortly');
+    console.log('─'.repeat(44));
+    console.log('🚀 ============================================');
     req.destroy();
     process.exit(1);
   });
