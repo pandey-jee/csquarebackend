@@ -98,6 +98,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 router.post('/verify', authenticateAdmin, (req, res) => {
   res.json({
     success: true,
+    valid: true,
     message: 'Token is valid',
     data: {
       user: req.user

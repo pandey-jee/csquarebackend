@@ -8,11 +8,12 @@ const Joi = require('joi');
 const gallerySchema = Joi.object({
   title: Joi.string().required().min(1).max(200).trim(),
   description: Joi.string().max(500).optional().trim().allow(''),
-  imageUrl: Joi.alternatives().try(
-    Joi.string().uri(), // Accept any valid URI
-    Joi.string().allow('')
-  ).required(),
-  eventId: Joi.string().optional().allow(''),
+  imageUrl: Joi.string().required().min(1).trim(), // More flexible URL validation
+  eventId: Joi.alternatives().try(
+    Joi.string().hex().length(24), // Valid MongoDB ObjectId
+    Joi.string().allow('', null),  // Allow empty string or null
+    Joi.allow(null)                // Explicitly allow null
+  ).optional(),
   isActive: Joi.boolean().optional(),
   displayOrder: Joi.number().min(0).optional()
 });
@@ -21,6 +22,8 @@ const validateGallery = (req, res, next) => {
   const { error } = gallerySchema.validate(req.body);
   
   if (error) {
+    console.log('Gallery validation error:', error.details); // Debug log
+    console.log('Request body:', req.body); // Debug log
     return res.status(400).json({
       success: false,
       error: 'Validation failed',
@@ -60,7 +63,15 @@ router.get('/', async (req, res) => {
 // POST /api/gallery - Create new gallery item (Admin only)
 router.post('/', authenticateAdmin, validateGallery, async (req, res) => {
   try {
-    const galleryItem = new Gallery(req.body);
+    // Process the data before saving
+    const galleryData = { ...req.body };
+    
+    // Convert empty eventId to null for proper MongoDB handling
+    if (!galleryData.eventId || galleryData.eventId.trim() === '') {
+      galleryData.eventId = null;
+    }
+    
+    const galleryItem = new Gallery(galleryData);
     await galleryItem.save();
     
     res.status(201).json({
